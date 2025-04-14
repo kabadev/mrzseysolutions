@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-
+export const dynamic = "force-dynamic";
 import DashboardMetrics from "@/components/dashboard/dashboard-metrics";
 
 import RecentPassportsTable from "@/components/dashboard/recent-passports-table";
@@ -12,11 +11,6 @@ import {
   getRecentPassports,
 } from "@/app/_actions/dasboard";
 import PassportCharts from "@/components/dashboard/passport-charts";
-
-export const metadata: Metadata = {
-  title: "MRZ Passport System Dashboard",
-  description: "Dashboard for managing passport issuance and tracking",
-};
 
 export default async function DashboardPage() {
   // Fetch all data in parallel
