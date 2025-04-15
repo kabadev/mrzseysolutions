@@ -62,9 +62,11 @@ export const RiderProvider: React.FC<{ children: ReactNode }> = ({
         const newRiders = [...prevRiders, ...data.riders];
         const uniqueRiders = newRiders.filter(
           (rider, index, self) =>
-            index === self.findIndex((t) => t.id === rider.id)
+            index ===
+            self.findIndex((t) => t.personalNumber === rider.personalNumber)
         );
         setTotalFetchedRiders(uniqueRiders.length);
+
         return uniqueRiders;
       });
       setTotalRiders(data.total);

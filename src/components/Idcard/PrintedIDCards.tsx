@@ -74,7 +74,7 @@ export function PrintedIDCards() {
           <div className="relative w-full">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search students..."
+              placeholder="Search Passport Number, Given & Surname and Personal number"
               className="pl-8 w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
