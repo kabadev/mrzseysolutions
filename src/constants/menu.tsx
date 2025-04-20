@@ -37,20 +37,10 @@ export const MenuItems = [
     url: "/users/",
     icon: UsersRound,
   },
-  //   {
-  //     title: "Courts",
-  //     url: "/courts",
-  //     icon: School,
-  //   },
-  //   {
-  //     title: "Announcements",
-  //     url: "/announcements",
-  //     icon: Volume2,
-  //     isActive: true,
-  //   },
+
   {
     title: "Report",
-    url: "/report",
+    url: "#",
     icon: ChartNoAxesCombined,
     isActive: true,
   },

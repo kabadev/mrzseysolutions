@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SEY Solutions | MRZ Passport System",
-  icons: "/seypasport.png",
+  title: "The Gambia Immigration Department (GID) | MRZ Passport System",
+  icons: "/imglogo.png",
   description: "Generate and manage Machine Readable Zone passport",
 };
 

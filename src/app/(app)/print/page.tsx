@@ -73,9 +73,9 @@ export default function IDCardPage() {
   return (
     <div className=" h-screen ">
       <Tabs defaultValue="notprinted" onValueChange={setTab}>
-        <div className="fixed w-[calc(100%-250px)] px-4 mt-[70px] border-b  md:ml-[250px] right-0 top-0 z-50  h-[50px] bg-card flex items-center  justify-between  ">
+        <div className="fixed bg-orange-700 w-[calc(100%-250px)] px-4 mt-[70px] border-b  md:ml-[250px] right-0 top-0 z-50  h-[50px]  flex items-center  justify-between  ">
           <div className="h-full flex items-center ">
-            <TabsList className="border">
+            <TabsList className=" bg-primary text-white">
               <TabsTrigger value="notprinted">Not Printed</TabsTrigger>
               <TabsTrigger value="printed">Printed</TabsTrigger>
             </TabsList>
@@ -87,7 +87,7 @@ export default function IDCardPage() {
               onValueChange={setSingleBatchTab}
               className="w-[400px]"
             >
-              <TabsList>
+              <TabsList className=" bg-primary text-white">
                 <TabsTrigger value="batch">Batch</TabsTrigger>
                 <TabsTrigger value="single">Single</TabsTrigger>
               </TabsList>

@@ -75,12 +75,11 @@ export default function AddRiderForm() {
     setValue,
     watch,
     reset,
-    setError,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       country: "REPUBLIC OF THE GAMBIA",
-      passportType: "",
+      passportType: "PC",
       surname: "",
       givenName: "",
       nationality: "",
@@ -138,7 +137,7 @@ export default function AddRiderForm() {
       gender: watchedFields.gender || "M",
       issueDate: watchedFields.issueDate || "2025-05-09",
       expiryDate: watchedFields.expiryDate || "2030-05-09",
-      placeOfBirth: watchedFields.placeOfBirth || "Sample Place of birth",
+      placeOfBirth: watchedFields.placeOfBirth || "Place of birth",
       issuingAuthority: watchedFields.issuingAuthority || "",
       department: watchedFields.department,
       diplomaticRank: watchedFields.diplomaticRank,

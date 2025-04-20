@@ -2,10 +2,7 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-// import { GrRotateLeft, GrRotateRight } from "react-icons/gr";
-// import { CgMergeVertical, CgMergeHorizontal } from "react-icons/cg";
-// import { IoMdUndo, IoMdRedo, IoIosImage } from "react-icons/io";
-// import { MdOutlineHideImage } from "react-icons/md";
+
 import { storeData } from "@/lib/LinkedList";
 import {
   CropIcon,
@@ -359,7 +356,7 @@ const ImageEditor = ({
                     key={i}
                     className={`py-2 px-4 rounded ${
                       property.name === v.name
-                        ? "bg-blue-500 text-white"
+                        ? "bg-primary text-white"
                         : "bg-gray-200"
                     }`}
                     onClick={() => setProperty(v)}

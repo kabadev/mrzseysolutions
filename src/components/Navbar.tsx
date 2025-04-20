@@ -8,13 +8,12 @@ const Navbar = () => {
     <header className="flex fixed border-b z-30  h-[70px] w-full bg-card top-0 items-center justify-between px-10">
       <div className="flex items-center gap-2">
         <Image
-          src={"/seypasport.png"}
+          src={"/gimglogo.png"}
           alt="logo"
-          width={100}
-          height={100}
-          className="h-12 w-12 object-contain"
+          width={700}
+          height={500}
+          className="h-[150px] -mt-4 w-full object-cover"
         />
-        <h2 className="font-semibold text-lg">MRZ | SEYS Solutions</h2>
       </div>
 
       <UserButton />
