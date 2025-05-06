@@ -323,7 +323,7 @@ export function EditPhotoSheet({
             canvas.height
           );
 
-          const bseurl = canvas.toDataURL("image/jpg");
+          const bseurl = canvas.toDataURL("image/png");
           const photoUploaded = await uploadToCloudinary(bseurl);
 
           const photo = photoUploaded.url || passport.photo;
