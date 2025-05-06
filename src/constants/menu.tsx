@@ -42,30 +42,13 @@ export const MenuItems = [
     title: "Report",
     url: "#",
     icon: ChartNoAxesCombined,
-    isActive: true,
+   
   },
   {
     title: "Settings",
     url: "#",
     icon: Settings,
-    items: [
-      {
-        title: "General",
-        url: "#",
-      },
-      {
-        title: "Team",
-        url: "#",
-      },
-      {
-        title: "Billing",
-        url: "#",
-      },
-      {
-        title: "Limits",
-        url: "#",
-      },
-    ],
+   
   },
 ];
 

@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "The Gambia Immigration Department (GID) | MRZ Passport System",
+  title: "MRZ Passport System | The Gambia Immigration Department (GID)",
   icons: "/imglogo.png",
   description: "Generate and manage Machine Readable Zone passport",
 };

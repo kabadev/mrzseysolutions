@@ -306,7 +306,7 @@ export function EditPhotoSheet({
         const ctx = canvas.getContext("2d");
 
         if (ctx) {
-          ctx.fillStyle = "white";
+          //ctx.fillStyle = "white";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           ctx.filter = `brightness(${state.brightness}%) brightness(${state.brightness}%) sepia(${state.sepia}%) saturate(${state.saturate}%) contrast(${state.contrast}%) grayscale(${state.grayscale}%) hue-rotate(${state.hueRotate}deg)`;

@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { generatePassportMRZ } from "./mrz-utils";
+
 export const generateBarcode = (text: any) => {
   const canvas = document.createElement("canvas");
   JsBarcode(canvas, text, { format: "CODE128", displayValue: false });
@@ -27,7 +28,7 @@ export const generateBarcodeUrl = (text: string) => {
   JsBarcode(canvas, text, {
     format: "CODE128",
     height: 80,
-    width: 4,
+    width: 2,
     background: "transparent",
   });
   return canvas.toDataURL("image/png");
@@ -581,12 +582,13 @@ function formatDate(dateString: string): string {
 
 // Constants
 const CANVAS_WIDTH = 1476;
-const CANVAS_HEIGHT = 1040;
+// const CANVAS_HEIGHT = 1040;
+const CANVAS_HEIGHT = 1152;
 
 const FONTS = {
-  HEADING: "bold 50px Helvetica",
-  LABEL: "bold 18px Arial",
-  VALUE: "bold 35px Consolas",
+  HEADING: `bold 45px  OCR-BT `,
+  LABEL: `bold 20px sans-serif`,
+  VALUE: `bold 35px OCR-BT`,
 };
 
 const COLORS = {
@@ -629,9 +631,19 @@ const drawLabelAndValue = (
   x: number,
   y: number
 ) => {
-  ctx.font = FONTS.LABEL;
-  ctx.fillStyle = COLORS.TEXT;
-  ctx.fillText(label.toUpperCase(), x, y);
+  // ctx.font = FONTS.LABEL;
+  // ctx.fillStyle = COLORS.TEXT;
+  // ctx.fillText(label.toUpperCase(), x, y);
+
+  drawTextWithSpacing(
+    ctx,
+    label.toUpperCase(),
+    x,
+    y,
+    1,
+    FONTS.LABEL,
+    COLORS.TEXT
+  );
 
   drawTextWithSpacing(
     ctx,
@@ -712,7 +724,33 @@ const drawMRZLine = (
   }
 };
 
+const drawBarcodeName = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  y: number,
+  startX: number,
+  endX: number,
+  font: string,
+  color: string
+) => {
+  ctx.font = font;
+  ctx.fillStyle = color;
+
+  const totalWidth = endX - startX;
+  const charWidths = [...text].map((char) => ctx.measureText(char).width);
+  const totalCharWidth = charWidths.reduce((a, b) => a + b, 0);
+  const spacing = (totalWidth - totalCharWidth) / (text.length - 1);
+
+  let x = startX;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    ctx.fillText(char, x, y);
+    x += charWidths[i] + spacing;
+  }
+};
+
 // Main
+
 export const generateCardFront = async (
   passport: any
 ): Promise<string | null> => {
@@ -722,17 +760,38 @@ export const generateCardFront = async (
 
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
-
+  const barcodeUrl = generateBarcodeUrl(passport.personalNumber);
   // Load assets
-  const [background, photo, signature, issuingSignature] = await Promise.all([
-    loadImage("/passbg.png"),
-    passport?.photo ? loadImage(passport.photo) : null,
-    passport?.signature ? loadImage(passport.signature) : null,
-    loadImage("/sign.png"),
-  ]);
+  const [background, photo, signature, issuingSignature, barcode] =
+    await Promise.all([
+      loadImage("/passbg.png"),
+      passport?.photo ? loadImage(passport.photo) : null,
+      passport?.signature ? loadImage(passport.signature) : null,
+      loadImage("/sign.png"),
+      passport?.personalNumber ? loadImage(barcodeUrl) : null,
+    ]);
 
   // Draw background
-  ctx.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  // ctx.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // barcode data
+  ctx.drawImage(barcode!, 1000, 990);
+  ctx.font = ` 30px OCR-BT`;
+  ctx.fillText(
+    `${passport?.givenName
+      ?.toUpperCase()
+      .split("")
+      .join(" ")}  ${passport?.surname?.toUpperCase().split("").join(" ")} `,
+    100,
+    1020
+  );
+
+  ctx.font = ` 30px OCR-BT`;
+  ctx.fillText(
+    `${passport?.personalNumber?.toUpperCase().split("").join(" ")}  `,
+    100,
+    1050
+  );
 
   // Draw watermark photo (faded, right side)
   if (photo) {
@@ -743,14 +802,15 @@ export const generateCardFront = async (
 
   // Heading
   if (passport?.passportType === "PD") {
-    ctx.font = "bold 40px Helvetica";
+    ctx.font = `bold 40px Helvetica`;
     ctx.fillStyle = COLORS.TEXT;
     ctx.fillText("DIPLOMATIC PASSPORT", CANVAS_WIDTH / 2 - 220, 80);
   }
 
   if (passport?.passportType === "PC") {
-    ctx.font = FONTS.HEADING;
+    ctx.font = "bold 40px Helvetica";
   }
+
   ctx.fillStyle = COLORS.TEXT;
   ctx.fillText("REPUBLIC OF THE GAMBIA", CANVAS_WIDTH / 2 - 270, 130);
 
@@ -759,7 +819,7 @@ export const generateCardFront = async (
 
   // Draw passport fields
   drawLabelAndValue(ctx, "TYPE - TYPE", passport?.type || "PC", 500, 180);
-  drawLabelAndValue(ctx, "COUNTRY - PAYS", "GMB", 700, 180);
+  drawLabelAndValue(ctx, "COUNTRY - PAY", "GMB", 700, 180);
   drawLabelAndValue(
     ctx,
     "PASSPORT NO. - NO DU PASSEPORT",
@@ -777,14 +837,14 @@ export const generateCardFront = async (
   drawLabelAndValue(ctx, "SURNAME - NOM", passport?.surname || "", 500, 250);
   drawLabelAndValue(
     ctx,
-    "GIVEN NAME(S) - PRÉNOM(S)",
+    "GIVEN NAMES - PRENOMS",
     passport?.givenName || "",
     500,
     320
   );
   drawLabelAndValue(
     ctx,
-    "NATIONALITY - NATIONALITÉ",
+    "NATIONALITY - NATIONALITE",
     passport?.nationality || "",
     500,
     390
@@ -800,7 +860,7 @@ export const generateCardFront = async (
   drawLabelAndValue(ctx, "SEX - SEXE", passport?.gender || "", 500, 530);
   drawLabelAndValue(
     ctx,
-    "DATE OF ISSUE - DATE DE DÉLIVRANCE",
+    "DATE OF ISSUE - DATE DE DELIVRANCE",
     formatDualLangDate(new Date(passport?.issueDate)),
     500,
     600
@@ -825,7 +885,7 @@ export const generateCardFront = async (
 
   drawLabelAndValue(
     ctx,
-    "AUTHORITY - AUTORITÉ",
+    "AUTHORITY - AUTORITE",
     passport?.issuingAuthority || "",
     1000,
     530
@@ -863,7 +923,7 @@ export const generateCardFront = async (
   // );
   ctx.font = FONTS.LABEL;
   ctx.fillStyle = COLORS.TEXT;
-  ctx.fillText("HOLDER SIGNATURE", 1000, 670);
+  ctx.fillText("SIGNATURE OF HOLDER - SIGNATURE DU TITULAIRE", 1000, 670);
   if (signature) {
     ctx.drawImage(signature, 1000, 680, 300, 100);
   }
@@ -871,10 +931,10 @@ export const generateCardFront = async (
   // MRZ Lines
   const mrz = generatePassportMRZ(passport);
   // Use this:
-  drawMRZLine(ctx, mrz.line1, 860, 40, 1436, "bold 40px Consolas", "black");
+  drawMRZLine(ctx, mrz.line1, 830, 40, 1436, ` 50px OCR-BT`, "black");
 
   // Same for line 2
-  drawMRZLine(ctx, mrz.line2, 930, 40, 1436, "bold 40px Consolas", "black");
+  drawMRZLine(ctx, mrz.line2, 900, 40, 1436, ` 50px OCR-BT`, "black");
 
   // Draw main photo (left side, clipped)
   if (photo) {
@@ -886,20 +946,20 @@ export const generateCardFront = async (
 
 export const saveBatchIDCards = async (idCards: string[]) => {
   const CARDS_PER_ROW = 2;
-  const GAP = 20;
-  const PADDING = 30;
+  const GAP = 0.2;
+  const PADDING = 0;
   const CARD_WIDTH = CANVAS_WIDTH;
   const CARD_HEIGHT = CANVAS_HEIGHT;
 
   const rows = Math.ceil(idCards.length / CARDS_PER_ROW);
 
   const pageWidth =
-    PADDING * 2 + CARDS_PER_ROW * CARD_WIDTH + (CARDS_PER_ROW - 1) * GAP;
+    PADDING * 0.2 + CARDS_PER_ROW * CARD_WIDTH + (CARDS_PER_ROW - 1) * GAP;
   const pageHeight = PADDING * 2 + rows * CARD_HEIGHT + (rows - 1) * GAP;
 
   const pdf = new jsPDF({
     orientation: "landscape",
-    unit: "px",
+    unit: "in",
     format: [pageWidth, pageHeight],
   });
 
@@ -952,28 +1012,97 @@ export const saveSingleIDCard = async (
   pdf.save(passportdata + "Passport_Card.pdf");
 };
 
+// export const printBatchIDCards = async (idCards: string[]) => {
+//   const CARDS_PER_ROW = 2;
+//   const CARDS_PER_COLUMN = 2;
+//   const CARDS_PER_PAGE = CARDS_PER_ROW * CARDS_PER_COLUMN;
+
+//   const GAP = 0.1;
+//   const PADDING = 0;
+//   const CARD_WIDTH = 5;
+//   const CARD_HEIGHT = 4;
+
+//   const pageWidth =
+//     PADDING * 2 + CARDS_PER_ROW * CARD_WIDTH + (CARDS_PER_ROW - 1) * GAP;
+//   const pageHeight =
+//     PADDING * 2 + CARDS_PER_COLUMN * CARD_HEIGHT + (CARDS_PER_COLUMN - 1) * GAP;
+
+//   const pdf = new jsPDF({
+//     orientation: "landscape",
+//     unit: "in",
+//     format: [pageWidth, pageHeight],
+//   });
+
+//   idCards.forEach((card, index) => {
+//     const pageIndex = Math.floor(index / CARDS_PER_PAGE);
+//     const indexOnPage = index % CARDS_PER_PAGE;
+//     const row = Math.floor(indexOnPage / CARDS_PER_ROW);
+//     const col = indexOnPage % CARDS_PER_ROW;
+
+//     if (index > 0 && indexOnPage === 0) {
+//       pdf.addPage();
+//     }
+
+//     const x = PADDING + col * (CARD_WIDTH + GAP);
+//     const y = PADDING + row * (CARD_HEIGHT + GAP);
+
+//     pdf.addImage(card, "PNG", x, y, CARD_WIDTH, CARD_HEIGHT);
+//   });
+
+//   const pdfBlob = pdf.output("blob");
+//   const pdfUrl = URL.createObjectURL(pdfBlob);
+//   const newWindow = window.open(pdfUrl);
+
+//   if (newWindow) {
+//     newWindow.onload = () => {
+//       newWindow.print();
+//     };
+//   }
+// };
+
+// Convert image URL to base64
+const toBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject("Canvas context not available");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => reject("Image failed to load: " + url);
+  });
+};
+
 export const printBatchIDCards = async (idCards: string[]) => {
+  const PAGE_WIDTH = 10; // inches
+  const PAGE_HEIGHT = 8.5; // inches
+  const GAP = 0.05; // inches between cards
+
   const CARDS_PER_ROW = 2;
   const CARDS_PER_COLUMN = 2;
   const CARDS_PER_PAGE = CARDS_PER_ROW * CARDS_PER_COLUMN;
 
-  const GAP = 20;
-  const PADDING = 30;
-  const CARD_WIDTH = CANVAS_WIDTH;
-  const CARD_HEIGHT = CANVAS_HEIGHT;
-
-  const pageWidth =
-    PADDING * 2 + CARDS_PER_ROW * CARD_WIDTH + (CARDS_PER_ROW - 1) * GAP;
-  const pageHeight =
-    PADDING * 2 + CARDS_PER_COLUMN * CARD_HEIGHT + (CARDS_PER_COLUMN - 1) * GAP;
-
+  // Calculate card dimensions based on available space and gaps
+  const TCARD_WIDTH = (PAGE_WIDTH - GAP * (CARDS_PER_ROW - 1)) / CARDS_PER_ROW;
+  const TCARD_HEIGHT =
+    (PAGE_HEIGHT - GAP * (CARDS_PER_COLUMN - 1)) / CARDS_PER_COLUMN;
+  const CARD_WIDTH = 4.8;
+  const CARD_HEIGHT = 4;
+  console.log(CARD_WIDTH);
+  console.log(CARD_HEIGHT);
   const pdf = new jsPDF({
     orientation: "landscape",
-    unit: "px",
-    format: [pageWidth, pageHeight],
+    unit: "in",
+    format: [PAGE_WIDTH, PAGE_HEIGHT],
   });
 
-  idCards.forEach((card, index) => {
+  for (let index = 0; index < idCards.length; index++) {
     const pageIndex = Math.floor(index / CARDS_PER_PAGE);
     const indexOnPage = index % CARDS_PER_PAGE;
     const row = Math.floor(indexOnPage / CARDS_PER_ROW);
@@ -983,12 +1112,19 @@ export const printBatchIDCards = async (idCards: string[]) => {
       pdf.addPage();
     }
 
-    const x = PADDING + col * (CARD_WIDTH + GAP);
-    const y = PADDING + row * (CARD_HEIGHT + GAP);
+    const x = 1.2 + col * (CARD_WIDTH + GAP);
+    //const x = col * (CARD_WIDTH + GAP);
+    const y = 0.2 + row * (CARD_HEIGHT + GAP);
 
-    pdf.addImage(card, "PNG", x, y, CARD_WIDTH, CARD_HEIGHT);
-  });
+    const cardImage =
+      idCards[index].startsWith("data:") || idCards[index].startsWith("blob:")
+        ? idCards[index]
+        : await toBase64(idCards[index]);
 
+    pdf.addImage(cardImage, "PNG", x, y, CARD_WIDTH, CARD_HEIGHT);
+  }
+
+  // Print preview
   const pdfBlob = pdf.output("blob");
   const pdfUrl = URL.createObjectURL(pdfBlob);
   const newWindow = window.open(pdfUrl);
@@ -998,6 +1134,9 @@ export const printBatchIDCards = async (idCards: string[]) => {
       newWindow.print();
     };
   }
+
+  // Optionally, allow downloading
+  // pdf.save("batch-id-cards.pdf");
 };
 
 export const printSingleIDCard = async (frontImage: string) => {

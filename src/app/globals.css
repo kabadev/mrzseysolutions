@@ -78,3 +78,8 @@ body {
 .cl-internal-df7v37 {
   display: none !important;
 }
+
+@font-face {
+  font-family: "OCR-BT";
+  src: url("/fonts/OCR-BT.ttf") format("truetype");
+}

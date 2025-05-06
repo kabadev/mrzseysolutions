@@ -126,6 +126,7 @@ export function mrzFormatToDate(mrzDate: string): Date {
  */
 export interface PassportData {
   passportNumber: string;
+  passportType: string;
   surname: string;
   givenName: string;
   nationality: string;
@@ -185,8 +186,8 @@ export function generatePassportMRZ(data: PassportData): {
   }
 
   // Format and pad the inputs
-  const documentType = "P";
-  const documentCode = documentType + "<";
+  const documentType = data?.passportType?.toUpperCase();
+  const documentCode = documentType;
 
   // Format issuing country (3 characters)
   const formattedIssuingCountry = formatMRZString(
@@ -215,10 +216,7 @@ export function generatePassportMRZ(data: PassportData): {
   );
 
   // Format nationality (3 characters)
-  const formattedNationality = formatMRZString(
-    data?.nationality?.toUpperCase(),
-    3
-  );
+  const formattedNationality = formatMRZString("GMB", 3);
 
   // Calculate check digit for date of birth
   const birthDateCheckDigit = calculateMRZCheckDigit(formattedbirthDate!);
@@ -231,8 +229,8 @@ export function generatePassportMRZ(data: PassportData): {
 
   // Format personal number (14 characters) and calculate check digit
   const formattedPersonalNumber = formatMRZString(
-    // data.personalNumber,
-    "00247488",
+    data?.personalNumber,
+
     14
   ).padEnd(14, "<");
   const personalNumberCheckDigit = calculateMRZCheckDigit(

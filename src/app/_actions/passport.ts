@@ -1,6 +1,7 @@
 "use server";
 
 import Rider from "@/models/Rider";
+import { mongooseConnect } from "@/lib/mongoose";
 import { revalidatePath } from "next/cache";
 
 interface FetchPassportsParams {
@@ -25,6 +26,7 @@ export async function fetchPassports({
   printedStatus = null,
 }: FetchPassportsParams) {
   try {
+    mongooseConnect();
     // Build query
     const query: any = {};
 
@@ -91,6 +93,7 @@ export async function fetchPassports({
 
 export async function getPassportById(id: string) {
   try {
+    mongooseConnect();
     const passport = await Rider.findById(id).lean();
 
     if (!passport) {
@@ -106,6 +109,7 @@ export async function getPassportById(id: string) {
 
 export async function createPassport(data: any) {
   try {
+    mongooseConnect();
     const newPassport = new Rider(data);
     await newPassport.save();
 
@@ -119,6 +123,7 @@ export async function createPassport(data: any) {
 
 export async function updatePassport(id: string, data: any) {
   try {
+    mongooseConnect();
     const updatedPassport = await Rider.findByIdAndUpdate(
       id,
       { $set: data },
@@ -139,6 +144,7 @@ export async function updatePassport(id: string, data: any) {
 
 export async function deletePassport(id: string) {
   try {
+    mongooseConnect();
     const deletedPassport = await Rider.findByIdAndDelete(id).lean();
 
     if (!deletedPassport) {
@@ -159,6 +165,7 @@ export async function updatePassportPhoto(
   photoId: string
 ) {
   try {
+    mongooseConnect();
     const updatedPassport = await Rider.findByIdAndUpdate(
       id,
       { $set: { photo, photoId } },
@@ -183,6 +190,7 @@ export async function updatePassportSignature(
   signatureId: string
 ) {
   try {
+    mongooseConnect();
     const updatedPassport = await Rider.findByIdAndUpdate(
       id,
       { $set: { signature, signatureId } },
